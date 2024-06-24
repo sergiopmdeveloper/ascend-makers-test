@@ -6,9 +6,8 @@ app = FastAPI()
 
 @app.get("/", include_in_schema=False)
 async def root():
+    """
+    Redirects to the API documentation.
+    """
+
     return RedirectResponse("/docs")
-
-
-@app.get("/hello_world")
-def hello_world():
-    return "Hello World"
