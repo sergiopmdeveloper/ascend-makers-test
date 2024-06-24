@@ -1,5 +1,5 @@
 from config.database import engine
-from models.campaign import CampaignAscend
+from models.campaign import Campaign
 
 
 def create_tables():
@@ -7,4 +7,4 @@ def create_tables():
     Creates database tables.
     """
 
-    CampaignAscend.metadata.create_all(bind=engine)
+    Campaign.metadata.create_all(bind=engine)

@@ -1,8 +1,11 @@
 from fastapi import FastAPI
 from fastapi.responses import RedirectResponse
+from routers.v1.api import api_router
 from utils.init_db import create_tables
 
 app = FastAPI()
+
+app.include_router(api_router)
 
 
 @app.on_event("startup")

@@ -1,12 +1,12 @@
 from datetime import date
 from typing import Optional
 
-from pydantic import BaseModel
+from pydantic import UUID4, BaseModel
 
 
-class CampaignAscendInput(BaseModel):
+class CampaignInput(BaseModel):
     """
-    Campaign Ascend Input Schema
+    Campaign input schema
     """
 
     start_date: date
@@ -15,3 +15,11 @@ class CampaignAscendInput(BaseModel):
     type: str
     keywords: Optional[list[str]]
     urls: Optional[list[str]]
+
+
+class CampaignOutput(CampaignInput):
+    """
+    Campaign output schema
+    """
+
+    id: UUID4
