@@ -42,3 +42,17 @@ class CampaignRepository:
         self._session.refresh(campaign_instance)
 
         return CampaignOutput(**campaign_instance.__dict__)
+
+    def get_all(self) -> list[CampaignOutput]:
+        """
+        Get all campaigns.
+
+        Returns
+        -------
+        CampaignOutput
+            List of campaigns.
+        """
+
+        campaigns = self._session.query(Campaign).all()
+
+        return [CampaignOutput(**campaign.__dict__) for campaign in campaigns]

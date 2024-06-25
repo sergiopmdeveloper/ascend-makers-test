@@ -36,3 +36,15 @@ class CampaignService:
         """
 
         return self._repository.create(campaign)
+
+    def get_all(self) -> list[CampaignOutput]:
+        """
+        Get all campaigns.
+
+        Returns
+        -------
+        CampaignOutput
+            List of campaigns.
+        """
+
+        return self._repository.get_all()

@@ -46,3 +46,26 @@ def create_campaign(
     created_campaign.anam_campaign = created_anam_campaign
 
     return created_campaign
+
+
+@campaign_router.get("/get-all", response_model=list[CampaignOutput])
+def get_all_campaigns(
+    session: Session = Depends(get_db_session),
+) -> list[CampaignOutput]:
+    """
+    Endpoint to get all campaigns.
+
+    Parameters
+    ----------
+    session : Session
+        Database session object.
+
+    Returns
+    -------
+    list[CampaignOutput]
+        List of campaigns.
+    """
+
+    service = CampaignService(session=session)
+
+    return service.get_all()
