@@ -16,6 +16,20 @@ class CampaignInput(BaseModel):
     keywords: Optional[list[str]]
     urls: Optional[list[str]]
 
+    def __init__(self, **data) -> None:
+        """
+        Convert empty lists to None
+        in the keywords and urls fields.
+        """
+
+        if data.get("keywords") == []:
+            data["keywords"] = None
+
+        if data.get("urls") == []:
+            data["urls"] = None
+
+        super().__init__(**data)
+
 
 class CampaignOutput(CampaignInput):
     """
