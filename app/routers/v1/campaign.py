@@ -1,9 +1,9 @@
 from config.database import get_db_session
 from fastapi import APIRouter, Depends, Query, status
 from schemas.campaign import CampaignInput, CampaignOutput
+from services.campaign_anam_service import CampaignAnamService
 from services.campaign_service import CampaignService
 from sqlalchemy.orm import Session
-from utils.anam import create_anam_campaign
 from validators.campaign import validate_campaign
 
 campaign_router = APIRouter(prefix="/campaign", tags=["campaign"])
@@ -38,10 +38,11 @@ def create_campaign(
     validate_campaign(**data.dict())
 
     service = CampaignService(session=session)
+    anam_service = CampaignAnamService(session=session)
 
     created_campaign = service.create(data)
+    created_anam_campaign = anam_service.create(data) if anam_campaign_flag else False
 
-    if anam_campaign_flag:
-        create_anam_campaign(data=data)
+    created_campaign.anam_campaign = created_anam_campaign
 
     return created_campaign

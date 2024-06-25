@@ -37,3 +37,4 @@ class CampaignOutput(CampaignInput):
     """
 
     id: UUID4
+    anam_campaign: Optional[bool]
