@@ -1,5 +1,5 @@
 from repositories.campaign_anam_repository import CampaignAnamRepository
-from schemas.campaign import CampaignInput
+from schemas.campaign import CampaignAnamInput
 from sqlalchemy.orm import Session
 
 
@@ -20,19 +20,20 @@ class CampaignAnamService:
 
         self._repository = CampaignAnamRepository(session)
 
-    def create(self, campaign: CampaignInput) -> bool:
+    def create(self, campaign: CampaignAnamInput) -> bool:
         """
         Create a new ANAM campaign.
 
         Parameters
         ----------
-        campaign : CampaignInput
+        campaign : CampaignAnamInput
             Campaign data.
 
         Returns
         -------
-        CampaignOutput
-            Created campaign.
+        bool
+            True if campaign is created
+            successfully, False otherwise.
         """
 
         return self._repository.create(campaign)

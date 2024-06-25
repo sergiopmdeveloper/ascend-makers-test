@@ -1,5 +1,5 @@
 from repositories.campaign_repository import CampaignRepository
-from schemas.campaign import CampaignInput, CampaignOutput
+from schemas.campaign import CampaignOutput
 from sqlalchemy.orm import Session
 
 
@@ -20,14 +20,14 @@ class CampaignService:
 
         self._repository = CampaignRepository(session)
 
-    def create(self, campaign: CampaignInput) -> CampaignOutput:
+    def create(self, name: str) -> CampaignOutput:
         """
         Create a new campaign.
 
         Parameters
         ----------
-        campaign : CampaignInput
-            Campaign data.
+        name : str
+            Campaign name.
 
         Returns
         -------
@@ -35,11 +35,16 @@ class CampaignService:
             Created campaign.
         """
 
-        return self._repository.create(campaign)
+        return self._repository.create(name=name)
 
-    def get_all(self) -> list[CampaignOutput]:
+    def get_all(self, anam_data: bool = False) -> list[CampaignOutput]:
         """
         Get all campaigns.
+
+        Parameters
+        ----------
+        anam_data : bool, optional
+            Additionally get ANAM campaigns data, by default False.
 
         Returns
         -------
@@ -47,4 +52,4 @@ class CampaignService:
             List of campaigns.
         """
 
-        return self._repository.get_all()
+        return self._repository.get_all(anam_data=anam_data)

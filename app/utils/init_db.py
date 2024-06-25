@@ -1,5 +1,5 @@
 from config.database import engine
-from models.campaign import Campaign
+from models.campaign import Campaign, CampaignAnam
 
 
 def create_tables():
@@ -8,3 +8,4 @@ def create_tables():
     """
 
     Campaign.metadata.create_all(bind=engine)
+    CampaignAnam.metadata.create_all(bind=engine)

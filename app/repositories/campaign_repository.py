@@ -1,6 +1,6 @@
 from models.campaign import Campaign
-from schemas.campaign import CampaignInput, CampaignOutput
-from sqlalchemy.orm import Session
+from schemas.campaign import CampaignOutput
+from sqlalchemy.orm import Session, joinedload
 
 
 class CampaignRepository:
@@ -20,14 +20,14 @@ class CampaignRepository:
 
         self._session = session
 
-    def create(self, campaign: CampaignInput) -> CampaignOutput:
+    def create(self, name: str) -> CampaignOutput:
         """
         Create a new campaign.
 
         Parameters
         ----------
-        campaign : CampaignInput
-            Campaign data.
+        name : str
+            Campaign name.
 
         Returns
         -------
@@ -35,7 +35,7 @@ class CampaignRepository:
             Created campaign.
         """
 
-        campaign_instance = Campaign(**campaign.dict())
+        campaign_instance = Campaign(name=name)
 
         self._session.add(campaign_instance)
         self._session.commit()
@@ -43,16 +43,29 @@ class CampaignRepository:
 
         return CampaignOutput(**campaign_instance.__dict__)
 
-    def get_all(self) -> list[CampaignOutput]:
+    def get_all(self, anam_data: bool) -> list[CampaignOutput]:
         """
         Get all campaigns.
 
+        Parameters
+        ----------
+        anam_data : bool
+            Flag to include ANAM data.
+
         Returns
         -------
-        CampaignOutput
+        list[CampaignOutput]
             List of campaigns.
         """
 
-        campaigns = self._session.query(Campaign).all()
+        if anam_data:
+            campaigns = (
+                self._session.query(Campaign)
+                .options(joinedload(Campaign.campaigns_anam))
+                .all()
+            )
+
+        else:
+            campaigns = self._session.query(Campaign).all()
 
         return [CampaignOutput(**campaign.__dict__) for campaign in campaigns]

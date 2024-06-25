@@ -1,6 +1,8 @@
+from typing import Annotated, Optional
+
 from config.database import get_db_session
-from fastapi import APIRouter, Depends, Query, status
-from schemas.campaign import CampaignInput, CampaignOutput
+from fastapi import APIRouter, Depends, Header, Query, status
+from schemas.campaign import CampaignAnamInput, CampaignOutput
 from services.campaign_anam_service import CampaignAnamService
 from services.campaign_service import CampaignService
 from sqlalchemy.orm import Session
@@ -13,21 +15,21 @@ campaign_router = APIRouter(prefix="/campaign", tags=["campaign"])
     "/create", status_code=status.HTTP_201_CREATED, response_model=CampaignOutput
 )
 def create_campaign(
-    data: CampaignInput,
+    name: Annotated[str, Header()],
+    anamData: Optional[CampaignAnamInput] = None,
     session: Session = Depends(get_db_session),
-    anam_campaign_flag: bool = Query(False, description="Create AMAN campaign."),
 ) -> CampaignOutput:
     """
     Endpoint to create a new campaign.
 
     Parameters
     ----------
-    data : CampaignInput
-        Campaign data.
+    name : str
+        Campaign name.
+    anamData : Optional[CampaignAnamInput], optional
+        Campaign Anam data, by default None.
     session : Session
         Database session object.
-    anam_campaign_flag : bool
-        Flag to create an ANAM campaign.
 
     Returns
     -------
@@ -35,21 +37,26 @@ def create_campaign(
         Created campaign.
     """
 
-    validate_campaign(**data.dict())
+    if anamData:
+        validate_campaign(**anamData.dict())
 
     service = CampaignService(session=session)
-    anam_service = CampaignAnamService(session=session)
+    created_campaign = service.create(name=name)
 
-    created_campaign = service.create(data)
-    created_anam_campaign = anam_service.create(data) if anam_campaign_flag else False
-
-    created_campaign.anam_campaign = created_anam_campaign
+    if anamData:
+        anam_service = CampaignAnamService(session=session)
+        anamData.campaign_id = created_campaign.id
+        anam_status = anam_service.create(anamData)
+        created_campaign.created_in_anam = anam_status
 
     return created_campaign
 
 
-@campaign_router.get("/get-all", response_model=list[CampaignOutput])
+@campaign_router.get(
+    "/get-all", status_code=status.HTTP_200_OK, response_model=list[CampaignOutput]
+)
 def get_all_campaigns(
+    anam_data: bool = Query(False, description="Additionally get ANAM campaigns data."),
     session: Session = Depends(get_db_session),
 ) -> list[CampaignOutput]:
     """
@@ -57,6 +64,8 @@ def get_all_campaigns(
 
     Parameters
     ----------
+    anam_data : bool
+        Flag to include ANAM data.
     session : Session
         Database session object.
 
@@ -68,13 +77,17 @@ def get_all_campaigns(
 
     service = CampaignService(session=session)
 
-    return service.get_all()
+    return service.get_all(anam_data=anam_data)
 
 
-@campaign_router.get("/anam/get-all")
+@campaign_router.get(
+    "/anam/get-all",
+    status_code=status.HTTP_200_OK,
+    response_model=list[CampaignAnamInput],
+)
 def get_all_anam_campaigns(
     session: Session = Depends(get_db_session),
-) -> list:
+) -> list[CampaignAnamInput]:
     """
     Endpoint to get all ANAM campaigns.
 
@@ -85,7 +98,7 @@ def get_all_anam_campaigns(
 
     Returns
     -------
-    list
+    list[CampaignAnamInput]
         List of ANAM campaigns.
     """
 

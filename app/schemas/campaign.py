@@ -4,11 +4,23 @@ from typing import Optional
 from pydantic import UUID4, BaseModel
 
 
-class CampaignInput(BaseModel):
+class CampaignOutput(BaseModel):
     """
-    Campaign input schema
+    Campaign output schema
     """
 
+    id: UUID4
+    name: str
+    created_in_anam: bool = False
+    campaigns_anam: Optional[list] = None
+
+
+class CampaignAnamInput(BaseModel):
+    """
+    Campaign ANAM input schema
+    """
+
+    campaign_id: Optional[UUID4] = None
     start_date: date
     end_date: date
     budget: float
@@ -31,10 +43,14 @@ class CampaignInput(BaseModel):
         super().__init__(**data)
 
 
-class CampaignOutput(CampaignInput):
+class CampaignAnamFromPlatform(BaseModel):
     """
-    Campaign output schema
+    Campaign ANAM from platform schema
     """
 
-    id: UUID4
-    anam_campaign: Optional[bool]
+    start_date: date
+    end_date: date
+    budget: float
+    type: str
+    keywords: Optional[list[str]]
+    urls: Optional[list[str]]

@@ -1,7 +1,8 @@
 import os
 
 import requests
-from schemas.campaign import CampaignInput
+from models.campaign import CampaignAnam
+from schemas.campaign import CampaignAnamInput
 from sqlalchemy.orm import Session
 
 
@@ -22,21 +23,27 @@ class CampaignAnamRepository:
 
         self._session = session
 
-    def create(self, campaign: CampaignInput) -> bool:
+    def create(self, campaign: CampaignAnamInput) -> bool:
         """
         Create a new ANAM campaign.
 
         Parameters
         ----------
-        campaign : CampaignInput
+        campaign : CampaignAnamInput
             Campaign data.
 
         Returns
         -------
         bool
-            True if the campaign was created
+            True if campaign is created
             successfully, False otherwise.
         """
+
+        campaign_anam_instance = CampaignAnam(**campaign.dict())
+
+        self._session.add(campaign_anam_instance)
+        self._session.commit()
+        self._session.refresh(campaign_anam_instance)
 
         URL = os.getenv("ANAM_URL") + "/campaign"
 
@@ -59,13 +66,13 @@ class CampaignAnamRepository:
 
         return response.ok
 
-    def get_all(self) -> list:
+    def get_all(self) -> list[CampaignAnamInput]:
         """
         Get all ANAM campaigns.
 
         Returns
         -------
-        list
+        list[CampaignAnamInput]
             List of ANAM campaigns.
         """
 
@@ -77,5 +84,6 @@ class CampaignAnamRepository:
         }
 
         response = requests.get(URL, headers=headers)
+        data = response.json()["campaigns"]
 
-        return response.json()
+        return [CampaignAnamInput(**campaign) for campaign in data]
