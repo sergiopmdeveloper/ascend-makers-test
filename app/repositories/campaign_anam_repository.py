@@ -58,3 +58,24 @@ class CampaignAnamRepository:
         response = requests.post(URL, headers=headers, json=campaign_data)
 
         return response.ok
+
+    def get_all(self) -> list:
+        """
+        Get all ANAM campaigns.
+
+        Returns
+        -------
+        list
+            List of ANAM campaigns.
+        """
+
+        URL = os.getenv("ANAM_URL") + "/campaign/list"
+
+        headers = {
+            "accept": "application/json",
+            "token": "token",
+        }
+
+        response = requests.get(URL, headers=headers)
+
+        return response.json()

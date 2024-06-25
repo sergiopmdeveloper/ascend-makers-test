@@ -36,3 +36,15 @@ class CampaignAnamService:
         """
 
         return self._repository.create(campaign)
+
+    def get_all(self) -> list:
+        """
+        Get all ANAM campaigns.
+
+        Returns
+        -------
+        list
+            List of all campaigns.
+        """
+
+        return self._repository.get_all()

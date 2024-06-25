@@ -69,3 +69,26 @@ def get_all_campaigns(
     service = CampaignService(session=session)
 
     return service.get_all()
+
+
+@campaign_router.get("/anam/get-all")
+def get_all_anam_campaigns(
+    session: Session = Depends(get_db_session),
+) -> list:
+    """
+    Endpoint to get all ANAM campaigns.
+
+    Parameters
+    ----------
+    session : Session
+        Database session object.
+
+    Returns
+    -------
+    list
+        List of ANAM campaigns.
+    """
+
+    service = CampaignAnamService(session=session)
+
+    return service.get_all()
