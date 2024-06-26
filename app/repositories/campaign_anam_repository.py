@@ -1,6 +1,7 @@
 import os
 
 import requests
+from exceptions.dance import DanceException
 from models.campaign import CampaignAnam
 from schemas.campaign import CampaignAnamInput
 from sqlalchemy.orm import Session
@@ -23,7 +24,7 @@ class CampaignAnamRepository:
 
         self._session = session
 
-    def create(self, campaign: CampaignAnamInput) -> bool:
+    def create(self, campaign: CampaignAnamInput, token: str) -> bool:
         """
         Create a new ANAM campaign.
 
@@ -31,6 +32,8 @@ class CampaignAnamRepository:
         ----------
         campaign : CampaignAnamInput
             Campaign data.
+        token : str
+            Token to authenticate the request.
 
         Returns
         -------
@@ -50,7 +53,7 @@ class CampaignAnamRepository:
         headers = {
             "accept": "application/json",
             "Content-Type": "application/json",
-            "token": "token",
+            "token": token,
         }
 
         campaign_data = {
@@ -64,11 +67,19 @@ class CampaignAnamRepository:
 
         response = requests.post(URL, headers=headers, json=campaign_data)
 
+        if response.status_code == 500:
+            raise DanceException()
+
         return response.ok
 
-    def get_all(self) -> list[CampaignAnamInput]:
+    def get_all(self, token: str) -> list[CampaignAnamInput]:
         """
         Get all ANAM campaigns.
+
+        Parameters
+        ----------
+        token : str
+            Token to authenticate the request.
 
         Returns
         -------
@@ -80,10 +91,14 @@ class CampaignAnamRepository:
 
         headers = {
             "accept": "application/json",
-            "token": "token",
+            "token": token,
         }
 
         response = requests.get(URL, headers=headers)
+
+        if response.status_code == 500:
+            raise DanceException()
+
         data = response.json()["campaigns"]
 
         return [CampaignAnamInput(**campaign) for campaign in data]

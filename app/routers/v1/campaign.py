@@ -2,10 +2,12 @@ from typing import Annotated, Optional
 
 from config.database import get_db_session
 from fastapi import APIRouter, Depends, Header, Query, status
+from schemas.auth import Credentials
 from schemas.campaign import CampaignAnamInput, CampaignOutput
 from services.campaign_anam_service import CampaignAnamService
 from services.campaign_service import CampaignService
 from sqlalchemy.orm import Session
+from utils.auth import generate_token
 from validators.campaign import validate_campaign
 
 campaign_router = APIRouter(prefix="/campaign", tags=["campaign"])
@@ -16,6 +18,7 @@ campaign_router = APIRouter(prefix="/campaign", tags=["campaign"])
 )
 def create_campaign(
     name: Annotated[str, Header()],
+    credentials: Credentials,
     anamData: Optional[CampaignAnamInput] = None,
     session: Session = Depends(get_db_session),
 ) -> CampaignOutput:
@@ -37,6 +40,8 @@ def create_campaign(
         Created campaign.
     """
 
+    token = generate_token(credentials=credentials)
+
     if anamData:
         validate_campaign(**anamData.dict())
 
@@ -46,7 +51,7 @@ def create_campaign(
     if anamData:
         anam_service = CampaignAnamService(session=session)
         anamData.campaign_id = created_campaign.id
-        anam_status = anam_service.create(anamData)
+        anam_status = anam_service.create(campaign=anamData, token=token)
         created_campaign.created_in_anam = anam_status
 
     return created_campaign
@@ -86,6 +91,8 @@ def get_all_campaigns(
     response_model=list[CampaignAnamInput],
 )
 def get_all_anam_campaigns(
+    username: str = Query("", description="Username."),
+    password: str = Query("", description="Password."),
     session: Session = Depends(get_db_session),
 ) -> list[CampaignAnamInput]:
     """
@@ -102,6 +109,9 @@ def get_all_anam_campaigns(
         List of ANAM campaigns.
     """
 
+    credentials = Credentials(username=username, password=password)
+    token = generate_token(credentials=credentials)
+
     service = CampaignAnamService(session=session)
 
-    return service.get_all()
+    return service.get_all(token=token)

@@ -20,7 +20,7 @@ class CampaignAnamService:
 
         self._repository = CampaignAnamRepository(session)
 
-    def create(self, campaign: CampaignAnamInput) -> bool:
+    def create(self, campaign: CampaignAnamInput, token: str) -> bool:
         """
         Create a new ANAM campaign.
 
@@ -28,6 +28,8 @@ class CampaignAnamService:
         ----------
         campaign : CampaignAnamInput
             Campaign data.
+        token : str
+            Token to authenticate the request.
 
         Returns
         -------
@@ -36,11 +38,16 @@ class CampaignAnamService:
             successfully, False otherwise.
         """
 
-        return self._repository.create(campaign)
+        return self._repository.create(campaign=campaign, token=token)
 
-    def get_all(self) -> list:
+    def get_all(self, token: str) -> list:
         """
         Get all ANAM campaigns.
+
+        Parameters
+        ----------
+        token : str
+            Token to authenticate the request.
 
         Returns
         -------
@@ -48,4 +55,4 @@ class CampaignAnamService:
             List of all campaigns.
         """
 
-        return self._repository.get_all()
+        return self._repository.get_all(token=token)
