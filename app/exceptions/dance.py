@@ -12,5 +12,5 @@ class DanceException(HTTPException):
         """
 
         super().__init__(
-            status_code=500, detail="https://www.youtube.com/watch?v=uUxChessSEY"
+            status_code=500, detail="https://www.youtube.com/watch?v=hPr-Yc92qaY"
         )
